@@ -1,66 +1,107 @@
-import pandas as pd
 import numpy as np
-import sklearn as sk
-from sklearn.model_selection import train_test_split
+import pandas as pd
 import tensorflow as tf
+from tensorflow import feature_column
+from tensorflow.keras import layers
+from sklearn.model_selection import train_test_split
 
 def convert_dtype(x):
+
     if not x:
+
         return ''
+
     try:
+
         return str(x)
+
     except:
+
         return ''
+
 def pre_process():
+
     dataf = pd.read_csv('diabetes.csv',converters={'first_column': convert_dtype,'second_column': convert_dtype})
 
-    print(dataf.head(3))
-
-    inspecion = dataf.describe()
-
-    print(dataf.columns)
-
     columns = ["Pregnancies", "Glucose", "BloodPressure", "SkinThickness", "Insulin",
+
        "BMI", "DiabetesPedigreeFunction", "Age", "Outcome"]
 
-    fet_colm = ["preg_f"]
+    datanorm=(dataf-dataf.min())/(dataf.max()-dataf.min())
 
-    datanorm  = dataf.iloc[: , :8] #only need features, drop the Outcome for now
+    train, test = train_test_split(datanorm, test_size=0.2, random_state= 42)
 
-    datanorm=(datanorm-datanorm.min())/(datanorm.max()-datanorm.min())
+    train, val = train_test_split(train, test_size=0.2, random_state= 42)
 
-    print(datanorm)
+    return  train, test, val
 
-    inp = datanorm
+def df_to_dataset(dataframe, shuffle=True, batch_size=32):
 
-    oup = df["Outcome"]
+  dataframe = dataframe.copy()
 
-    inp_tr, , inp_te, oup_tr, oup_te = train_test_split(inp,oup, test_size=0.2,random_state=101)
+  labels = dataframe.pop('Outcome')
 
-    return  inp_tr, , inp_te, oup_tr, oup_te
+  ds = tf.data.Dataset.from_tensor_slices((dict(dataframe), labels))
 
+  if shuffle:
+
+    ds = ds.shuffle(buffer_size=len(dataframe))
+
+  ds = ds.batch(batch_size)
+
+  return ds
 
 def features():
 
-    preg_f = tf.feature_column.numeric_column("Pregnancies")
+    fetcol = []
 
-    gluc_f = tf.feature_column.numeric_column("Glucose")
+    for header in ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin',
 
-    bl_f = tf.feature_column.numeric_column("BloodPressure")
+       'BMI', 'DiabetesPedigreeFunction', 'Age'] :
 
-    sk_f = tf.feature_column.numeric_column("SkinThickness")
-
-    ins_f = tf.feature_column.numeric_column("Insulin")
-
-    bmi_f = tf.feature_column.numeric_column("BMI")
-
-    DPF_f = tf.feature_column.numeric_column("DiabetesPedigreeFunction")
-
-    age_f = tf.feature_column.numeric_column("Age")
-
-    fetcol = [preg_f, gluc_f, bl_f, sk_f, ins_f, bmi_f, DPF_f, age_f]
+        fetcol.append(feature_column.numeric_column(header))
 
     return fetcol
+
+def model():
+
+    fetcol = features()
+
+    fetlay = tf.keras.layers.DenseFeatures(fetcol)
+
+    batch_size = 32
+    trains = df_to_dataset(pre_process()[0], batch_size=batch_size)
+    tests = df_to_dataset(pre_process()[1], shuffle=False, batch_size=batch_size)
+    valds = df_to_dataset(pre_process()[2], shuffle=False, batch_size=batch_size)
+
+    model = tf.keras.Sequential([
+
+        fetlay,
+
+        layers.Dense(128, activation='relu'),
+
+        layers.Dense(128, activation='relu'),
+
+        layers.Dropout(.1),
+
+        layers.Dense(1)
+    ])
+
+    model.compile(optimizer='adam',
+                  loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+    model.fit(trains,
+              validation_data=valds,
+              epochs=128)
+
+    loss, accuracy = model.evaluate(tests)
+
+    print("Accuracy", accuracy)
+
+if __name__ == "__main__":
+
+    model()
+
 
 
 
