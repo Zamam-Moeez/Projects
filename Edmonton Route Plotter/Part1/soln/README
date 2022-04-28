@@ -1,0 +1,60 @@
+Name: Zamam Moeez
+SID: 1665264
+CCID: zamam
+CMPUT 275 , Winter 2022
+
+Assignment part 1
+
+Included Files:
+server.cpp
+dijkstra.cpp
+dijkstra.h
+digraph.cpp
+digraph.h
+wdigraph.h
+edmonton-roads-2.0.1.txt
+README
+Makefile
+
+Program definition:
+
+void dijkstra(const WDigraph &graph, int startVertex, unordered_map<int, PIL> &searchTree):
+
+In dijkstra.cpp, calls dijkstra's algorithm to construct a searchTree with the shortest path from a start vertex to different verticies
+Uses mini heap (priority queue implementation), algorithm code reused from CMPUT 275 Lecture 14
+
+long long manhattan(const Point& pt1, const Point& pt2):
+
+Computes the mahattan distance between Point objects pt1 and pt2 and returns that distance
+
+void readGraph(string filename, WDigraph& graph, unordered_map<int, Point>& points):
+
+Builds WDigraph graph
+Reads in data from file named <filename> if line starts with V, add vertex specified and corresponding latitude and longitude to points. if starts with E, add the edge formed(single direction) and add the cost using manhattan
+Returns nothing
+
+int nearvert(long long latv, long long lonv, const unordered_map<int, Point> &points):
+
+Takes latv, lonv and points as args. Iterates through points looking for the nearest vertex in points to the one described by latv and lonv and returns it
+
+main():
+
+Builds WDigraph graph using readGraph()
+
+Then takes query inputs 
+
+prints the number of vertices as N <num vertices in path>
+prints each way point as W <lat> <lon>
+printe E when path completed
+
+Running Instructions:
+
+Run included Makefile using make server
+Then pass command using pipeline ./server < <directory> / <filename> > <returnfilename>
+remove obj files using make clean
+
+References:
+
+Code reused for Dijkstra:
+
+https://github.com/paullu-teach/C275.Winter.2022.Share.Class/blob/main/Lecture.14/dijkstra.cpp

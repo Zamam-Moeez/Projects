@@ -1,0 +1,54 @@
+Name: Zamam Moeez
+SID: 1665264
+CCID: zamam
+CMPUT 275 , Winter 2022
+
+Assignment part 2
+
+Included Files:
+/soln
+Makefile
+README
+
+/client
+client.py
+
+/server
+server.cpp
+dijkstra.cpp
+dijkstra.h
+digraph.cpp
+digraph.h
+wdigraph.h
+edmonton-roads-2.0.1.txt
+Makefile
+
+Program definition:
+
+Calls readGraph() to build graph 
+
+main():
+
+Builds WDigraph graph using readGraph()
+
+client.py communicates with server.cpp using inpipe and outpipe
+
+client sends request through inpipe in the form <start lat> <start lon>\n <end lat> <end lon>
+server computes dijkstra algorithm on this and sends way points through outpipe in the form <lat> <lon>\n
+sends "E\n" when no waypoints left.
+Then goes into a state of waiting for the next request from client
+
+When map window is closed client sends "Q" to server which results in server closing along with inpipe, outpipe
+
+Running Instructions:
+
+run <make server> in server folder to create executable
+then run <make run> in soln folder in order to open map
+use W/A/S/D or left mouse button to move around the map
+use left mouse button to click on start and end points 
+
+References:
+
+Code reused for Dijkstra:
+
+https://github.com/paullu-teach/C275.Winter.2022.Share.Class/blob/main/Lecture.14/dijkstra.cpp
