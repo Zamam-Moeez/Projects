@@ -4,6 +4,8 @@ import util
 
 Debug = False
 
+#functions
+
 def run_compressor (filename):
     with open(filename, 'rb') as uncompressed:
         freqs = huffman.make_freq_table(uncompressed)
