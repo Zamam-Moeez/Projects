@@ -51,6 +51,7 @@ def model():
         layers.Dense(128, activation='relu'),
         layers.Dropout(.1),
         layers.Dense(1)
+
     ])
     model.compile(optimizer='adam',
                   loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
@@ -60,6 +61,12 @@ def model():
               epochs=128)
     loss, accuracy = model.evaluate(tests)
     print("Accuracy", accuracy)
+    model.save('diabetes_model.h5')
 
-if __name__ == "__main__":
-    model()
+# create method that takes single data point as list and returns a prediction
+def predict(data):
+    data = np.array(data)
+    data = data.reshape(1, -1)
+    model = tf.keras.models.load_model('diabetes_model.h5')
+    prediction = model.predict(data)
+    return prediction
